@@ -31,6 +31,22 @@
     register: webinstsg_output
   - debug:
       var: webinstsg_output
+  - name: example using security group rule descriptions
+    ec2_group:
+      name: "{{ lbsgname }}"
+      description: Security Group for the instances
+      vpc_id: "{{ vpcid }}"
+      region: "{{ region }}"
+      rules:
+        - proto: tcp
+          ports:
+          - 80
+          - 22
+          cidr_ip: 0.0.0.0/0
+          rule_desc: allow all on port 80
+    register: weblbsg_output
+  - debug:
+      var: webinstsg_output
   - name: Create VMs
     ec2_instance:
       region: "{{ region }}"      
@@ -50,7 +66,7 @@
     register: webinstance_output
   - debug:
       var: webinstance_output
-  - name: Create Load Balancer and map the VMs
+  - name: load balancer mapping
     elb_classic_lb:
       name: "test-please-delete"
       state: present
@@ -79,5 +95,3 @@
       state: present
     with_items:
       "{{ webinstance_output.results }}"
-      
-  
